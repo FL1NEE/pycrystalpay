@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from requests import *
+import grequests
 
 class CrystalPay(object):
 	def __init__(self, cashbox_name=None, client_key1=None):
-		self.http = Session()
+		self.http = grequests.Session()
 		self.cashbox_name = cashbox_name
 		self.client_key1 = client_key1
 		self.domain = "https://api.crystalpay.io/v2"
@@ -26,10 +26,13 @@ class CrystalPay(object):
 			"auth_login": self.cashbox_name,
 			"auth_secret": self.client_key1,
 			"amount": amount,
-			"description": comment,
 			"type": "purchase",
 			"lifetime": lifetime
 		}
+		if comment:
+			json["description"] = comment
+		if redirect_url:
+			json["redirect_url"] = redirect_url
 
 		create = self.http.post(f"{self.domain}/invoice/create/", json=json).json()
 
