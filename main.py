@@ -2,17 +2,17 @@
 import grequests
 
 class CrystalPay(object):
-	def __init__(self, cashbox_name=None, client_key1=None):
+	def __init__(self, cashbox_name:str, client_key:str) -> (dict):
+		self.domain = "https://api.crystalpay.io/v2"
 		self.http = grequests.Session()
 		self.cashbox_name = cashbox_name
-		self.client_key1 = client_key1
-		self.domain = "https://api.crystalpay.io/v2"
+		self.client_key = client_key
 
 	def get_balance(self):
 		json = \
 		{
 			"auth_login": self.cashbox_name,
-			"auth_secret": self.client_key1,
+			"auth_secret": self.client_key,
 			"hide_empty": "true"
 		}
 
@@ -24,7 +24,7 @@ class CrystalPay(object):
 		json = \
 		{
 			"auth_login": self.cashbox_name,
-			"auth_secret": self.client_key1,
+			"auth_secret": self.client_key,
 			"amount": amount,
 			"type": "purchase",
 			"lifetime": lifetime
@@ -40,12 +40,12 @@ class CrystalPay(object):
 
 		return payment_data
 
-	def check_payment(self, id=None):
+	def check_payment(self, pay_id=None):
 		json = \
 		{
 			"auth_login": self.cashbox_name,
-			"auth_secret": self.client_key1,
-			"id": id
+			"auth_secret": self.client_key,
+			"id": pay_id
 		}
 
 		status = self.http.post(f"{self.domain}/invoice/info/", json=json).json()
