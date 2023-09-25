@@ -20,7 +20,7 @@ class CrystalPay(object):
 
 		return info
 
-	def create_payment(self, amount=None, comment=None, redirect_url=None, lifetime=None):
+	def create_payment(self, amount:int, comment:str, redirect_url:str, lifetime:int) -> (dict):
 		json = \
 		{
 			"auth_login": self.cashbox_name,
@@ -40,7 +40,7 @@ class CrystalPay(object):
 
 		return payment_data
 
-	def check_payment(self, pay_id=None):
+	def check_payment(self, pay_id:str) -> (dict):
 		json = \
 		{
 			"auth_login": self.cashbox_name,
