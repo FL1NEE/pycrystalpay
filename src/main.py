@@ -1,14 +1,27 @@
+"""
+:authors: FL1NEE
+:license: Apache License, Version 2.0, see LICENSE file
+:copyright: (c) 2023 FL1NEE
+"""
+
 # -*- coding: utf-8 -*-
-import grequests
+import aiohttp
+import asyncio
 
 class CrystalPay(object):
+	"""
+	:param cashbox_name: - CrystalPay API Cashbox login
+	:param client_key: - CrystalPay API Cashbox secret key
+	:return:
+	"""
 	def __init__(self, cashbox_name:str, client_key:str) -> (dict):
-		self.domain = "https://api.crystalpay.io/v2"
-		self.http = grequests.Session()
-		self.cashbox_name = cashbox_name
-		self.client_key = client_key
+		self.domain:str = "https://api.crystalpay.io/v2"
+		self.http:str = aiohttp.ClientSession()
+		self.cashbox_name:str = cashbox_name
+		self.client_key:str = client_key
 
-	def get_balance(self):
+	async def get_balance(self):
+		""" Return cashbox balance """
 		json = \
 		{
 			"auth_login": self.cashbox_name,
@@ -16,11 +29,14 @@ class CrystalPay(object):
 			"hide_empty": "true"
 		}
 
-		info = self.http.post(f"{self.domain}/balance/info/", json=json).json()["balances"]
+		data = await self.http.post(f"{self.domain}/balance/info/", json=json)
+
+		info = await data.json()["balances"]
 
 		return info
 
-	def create_payment(self, amount:int, comment:str, redirect_url:str, lifetime:int) -> (dict):
+	async def create_payment(self, amount:int, comment:str, redirect_url:str, lifetime:int) -> (dict):
+		""" Create payment link """
 		json = \
 		{
 			"auth_login": self.cashbox_name,
@@ -34,13 +50,15 @@ class CrystalPay(object):
 		if redirect_url:
 			json["redirect_url"] = redirect_url
 
-		create = self.http.post(f"{self.domain}/invoice/create/", json=json).json()
+		data = await self.http.post(f"{self.domain}/invoice/create/", json=json)
+
+		create = await data.json()
 
 		payment_data = create["url"], create["id"]
 
 		return payment_data
 
-	def check_payment(self, pay_id:str) -> (dict):
+	async def check_payment(self, pay_id:str) -> (dict):
 		json = \
 		{
 			"auth_login": self.cashbox_name,
@@ -48,6 +66,8 @@ class CrystalPay(object):
 			"id": pay_id
 		}
 
-		status = self.http.post(f"{self.domain}/invoice/info/", json=json).json()
+		data = await self.http.post(f"{self.domain}/invoice/info/", json=json)
 
-		return status["state"]
+		status = await data.json()["state"]
+
+		return status
